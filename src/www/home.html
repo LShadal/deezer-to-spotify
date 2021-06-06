@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Deezer2Spotify</title>
+		<script>
+			function get(path) {
+				const options = {
+					method: 'get',
+					mode: 'cors',
+					cache: 'no-cache',
+					credentials: 'same-origin',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					redirect: 'follow',
+					referrer: 'no-referrer'
+				}
+
+				return fetch(`${window.location.origin}${path}`, options)
+					.then(response => response.json())
+					.then(response => {
+						if(response.message !== 'success') {
+							throw response.message;
+						}
+						else {
+							return response;
+						}
+					})
+			}
+		
+			window.onload = async () => {
+				const transfer = confirm(`Transfer all your saved playlists to Spotify ?`);
+				if(transfer) {
+					const element = document.getElementById('content');
+					element.innerHTML = `Stay on this page to get transfer report...`;
+					try {
+						const { errors } = await get(`/start`);
+
+						if(errors.total > 0) {
+							element.innerHTML = `Errors: ${JSON.stringify(errors.details)}`;
+						}
+						else {
+							element.innerHTML = `All data has been transfered, you can close this page!`;
+						}
+					}
+					catch(err) {
+						return alert(err);
+					}
+				}
+				else {
+					return alert(`Canceled! You can close this page!`);
+				}
+			}
+		</script>
+	</head>
+
+	<body>
+		<p id="content"></p>
+	</body>
+</html>
